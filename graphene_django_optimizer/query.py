@@ -167,6 +167,7 @@ class QueryOptimizer(object):
                                 if field_model == model:
                                     self._optimize_field(
                                         store,
+                                        name,
                                         model,
                                         selection,
                                         selection_field_def,
@@ -174,9 +175,9 @@ class QueryOptimizer(object):
                                     )
         return store
 
-    def _optimize_field(self, store, model, selection, field_def, parent_type):
+    def _optimize_field(self, store, name, model, selection, field_def, parent_type):
         optimized_by_name = self._optimize_field_by_name(
-            store, model, selection, field_def
+            store, name, model, selection, field_def
         )
         optimized_by_hints = self._optimize_field_by_hints(
             store, selection, field_def, parent_type
@@ -185,8 +186,9 @@ class QueryOptimizer(object):
         if not optimized:
             store.abort_only_optimization()
 
-    def _optimize_field_by_name(self, store, model, selection, field_def):
-        name = self._get_name_from_resolver(field_def.resolve)
+    def _optimize_field_by_name(self, store, name, model, selection, field_def):
+        resolver_name = self._get_name_from_resolver(field_def.resolve)
+        name = resolver_name or name
         if not name:
             return False
         model_field = self._get_model_field_from_name(model, name)
