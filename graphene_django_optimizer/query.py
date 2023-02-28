@@ -176,12 +176,13 @@ class QueryOptimizer(object):
         return store
 
     def _optimize_field(self, store, name, model, selection, field_def, parent_type):
-        optimized_by_name = self._optimize_field_by_name(
-            store, name, model, selection, field_def
-        )
-        optimized_by_hints = self._optimize_field_by_hints(
-            store, selection, field_def, parent_type
-        )
+        optimized_by_hints = self._optimize_field_by_hints(store, selection, field_def, parent_type)
+        if not optimized_by_hints:
+            optimized_by_name = self._optimize_field_by_name(
+                store, name, model, selection, field_def,
+            )
+        else:
+            optimized_by_name = False
         optimized = optimized_by_name or optimized_by_hints
         if not optimized:
             store.abort_only_optimization()
